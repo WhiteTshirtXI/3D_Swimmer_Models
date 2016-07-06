@@ -1,4 +1,5 @@
 function  [Shat, newRHS] = update_Shat(Uhat,grid,Shat,nu,dt,lam,newRHS)
+
 % update the Stress advection equation
 
 % Note to translate into something that reads better use the following:
@@ -24,14 +25,12 @@ Ly=grid.Ly;
 %
 N1x =  floor((nx-1)/2);
 N2x = (nx/2)*ones(rem(nx+1,2));
-%freqx =(2*pi/Lx)* [(0:N1x)  N2x (-N1x:-1)]';
-freqx =(1/Lx)* [(0:N1x)  N2x (-N1x:-1)]';
+freqx =(2*pi/Lx)* [(0:N1x)  N2x (-N1x:-1)]';
 
 
 N1y =  floor((ny-1)/2);
 N2y = (ny/2)*ones(rem(ny+1,2));
-%freqy = (2*pi/Ly)*[(0:N1y)  N2y (-N1y:-1)]';
-freqy = (1/Ly)*[(0:N1y)  N2y (-N1y:-1)]';
+freqy = (2*pi/Ly)*[(0:N1y)  N2y (-N1y:-1)]';
 
 
 [k1, k2]=ndgrid(freqx,freqy);
