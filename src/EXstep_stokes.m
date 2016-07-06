@@ -1,4 +1,4 @@
-function [X,Uw,u,E] = EXstep_stokes(Xn,dt,fbhat_ext,ks,kb,kappa,grid);
+function [X,Uw,u,E,uhat] = EXstep_stokes(Xn,dt,fbhat_ext,ks,kb,kappa,grid);
      
   % form the spreading operator
   %
@@ -27,7 +27,7 @@ function [X,Uw,u,E] = EXstep_stokes(Xn,dt,fbhat_ext,ks,kb,kappa,grid);
   % solve stokes in fourier space
   %
   [uhat,phat]=stokes_solve_fourier(fbhat,grid.Lx,grid.Ly);
-    
+  
   % transform velocity back to real space
   %
   u = real( ifft2(uhat) );
