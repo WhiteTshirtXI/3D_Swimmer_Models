@@ -1,4 +1,4 @@
-function [X,Uw,U,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rtol,rXtol,gmrestol);
+function [X,Uw,U,output] = IMstep_stokes_newton_copy(Xn,dt,fbhat,ks,kb,kappa,grid,rtol,rXtol,gmrestol)
    
     gmresiter   = 20;
     gmresrstart = 20;
@@ -140,6 +140,8 @@ function W = JMfun(Y,JF,Sm,spfactor,dt,grid);
   fbhat = fft2( fb );
   [uhat,phat]=stokes_solve_fourier(fbhat,grid.Lx,grid.Ly);
   U = real( ifft2( uhat ) );
+  
+  
     
   % interpolate back to the IB points
   %
@@ -152,7 +154,7 @@ function W = JMfun(Y,JF,Sm,spfactor,dt,grid);
    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    
-function [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid);
+function [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid)
 %
 % Use this function to solve G= X(n+1)-X(n)-dt*U = 0
 %
@@ -172,6 +174,10 @@ function [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid);
    fbhat = fft2( fb ) + fbhat_ext;
    [uhat,phat]=stokes_solve_fourier(fbhat,grid.Lx,grid.Ly);
    U = real( ifft2( uhat ) );
+   
+   %update Shat
+   %[Shat,newRHS] = update_Shat(uhat,grid,Shat,nu,dt,lam,newRHS);
+   %^ update stress in wrapper
     
    % interpolate back to the IB points
    %

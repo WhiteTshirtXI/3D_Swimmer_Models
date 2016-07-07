@@ -14,7 +14,7 @@ lastsaved = .5;
 % define the domain and the grid spacing
 %
 Lx = 2;
-Ly = 1;
+Ly = 2;
 
 % center the domain at the origin
 %
@@ -24,9 +24,25 @@ ymin=-Ly/2;
 % number of grid points and the grid spacing
 %
 K  = Lx/Ly;
-Ny = 32;
+Ny = 16;
 Nx = K*Ny;
 dx = Lx/Nx;
+
+%fluid parameters
+lam = 0.3;
+xi = 0.5;
+diffconst = 0;
+%tend = 10.0;
+%t0 = 0;                %<--- i think this is unnecessary
+%savetime = 1;
+
+
+%initialize Shat
+[params,Shat,newRHS] = get_4roll_inputs(Ny,lam,xi,diffconst);
+
+
+%unpack params
+nu = params.nu;
 
 % worm paramters
 %
@@ -43,14 +59,14 @@ ks = 2500;                     % stretching stiffness
 
 % curvature function that defines the gait
 %
-k0 = 2.0;
+k0 = 4.0;
 kappa_fun = @(s,t)(k0*sin(2*pi/Tper*t + pi*s));
-
+%kappa_fun = @(s,t)(k0*sin(2*pi/Tper*(Tper-t) + pi*(L-s)));
 
 % time stepping information
 %
 dt     = 1e-3;           % time step [s]
-Tend   = 4;              % end time [s]
+Tend   = 5;              % end time [s]
 
 Nt     = round(Tend/dt);  % number of time steps to take
 saveit = round(0.01/dt);  % frequency of output swimmer positions
@@ -152,7 +168,7 @@ for tint=0:Nt
     %
     if( mod(tint,saveall)==0 && t~=0)
         foutw = sprintf('%s/%s_t%f.mat',datadir,fileprefix,t);
-	    save(foutw,'U','Uw','XTworm');
+	    save(foutw,'U','Uw','XTworm','Shat'); %%need to save Shat
       end
     
     
@@ -163,12 +179,22 @@ for tint=0:Nt
     % set the external body forces to zero for stokes solve
     %   this coudl be nonzero for viscoelastic fluid
     %
+    if(isnan(Shat(1,1,1)))  % if the stress blows up stop running
+        break
+    end  
+    
+if(lam==0)
     fbhat = zeros(Nx,Ny,2);
-        
+else  % Compute VE force
+         
+         fbhat = get_veforcehat(Shat,xi,grid);
+end
+
     % advance swimmer in time using backward euler
-    %
-    [X,Uw,U,output] = IMstep_stokes_newton(X,dt,fbhat,ks,kb,kappa0,grid,rtol,rXtol,gmrestol);
-   
+    %pass out newRHS Shat// pass in lam nu Shat newRhS
+    [X,Uw,U,output] = IMstep_stokes_newton_copy(X,dt,fbhat,ks,kb,kappa0,grid,rtol,rXtol,gmrestol); %do not need to pass Shat onwards
+    Uhat = fft2(U);
+    [Shat, newRHS] = update_Shat(Uhat,grid,Shat,nu,dt,lam,newRHS);
     
     % update time
     %

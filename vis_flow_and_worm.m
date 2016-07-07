@@ -1,16 +1,16 @@
 %
 % animate the swimmer in lab frame 
 %
-load('./data/imworm_n032_t4.000000.mat');
+load('./data/imworm_n016_t0.100000.mat');
 
 % this info should really be read in
 %
 Lx = 2;
-Ly = 1;
+Ly = 2;
 xmin=-Lx/2;
 ymin=-Ly/2;
 K  = Lx/Ly;
-Ny = 32;
+Ny = 16;
 Nx = K*Ny;
 dx = Lx/Nx;
 
@@ -18,7 +18,7 @@ dx = Lx/Nx;
 %
 t0    = 0.1;
 dtout = 0.1;
-Tend  = 4.0;
+Tend  = 5.0;
 
 
 % grid point positions
@@ -32,7 +32,7 @@ y = ymin + dx*(0:Ny-1)';
 %
 k=1;
 for t = t0:dtout:Tend
-  filename = sprintf('./data/exworm_n032_t%f.mat',t);
+  filename = sprintf('./data/imworm_n016_t%f.mat',t);
   load(filename);
   quiver(x,y,U(:,:,1),U(:,:,2));
   hold on;
