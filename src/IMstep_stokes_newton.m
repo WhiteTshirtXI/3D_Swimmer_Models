@@ -1,4 +1,4 @@
-function [X,Uw,U,output] = IMstep_stokes_newton_copy(Xn,dt,fbhat,ks,kb,kappa,grid,rtol,rXtol,gmrestol)
+function [X,Uw,U,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rtol,rXtol,gmrestol)
    
     gmresiter   = 20;
     gmresrstart = 20;

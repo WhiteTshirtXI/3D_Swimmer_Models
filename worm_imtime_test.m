@@ -192,7 +192,7 @@ end
 
     % advance swimmer in time using backward euler
     %pass out newRHS Shat// pass in lam nu Shat newRhS
-    [X,Uw,U,output] = IMstep_stokes_newton_copy(X,dt,fbhat,ks,kb,kappa0,grid,rtol,rXtol,gmrestol); %do not need to pass Shat onwards
+    [X,Uw,U,output] = IMstep_stokes_newton(X,dt,fbhat,ks,kb,kappa0,grid,rtol,rXtol,gmrestol); %do not need to pass Shat onwards
     Uhat = fft2(U);
     [Shat, newRHS] = update_Shat(Uhat,grid,Shat,nu,dt,lam,newRHS);
     
