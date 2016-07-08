@@ -126,7 +126,7 @@ for tint=0:Nt
     % modify save need shat
     if( mod(tint,saveall)==0 && t~=0)
         foutw = sprintf('%s/%s_t%f.mat',datadir,fileprefix,t);
-        save(foutw,'U','Uw','XTworm','Shat');
+        save(foutw,'U','Uw','XTworm','Shat', 'Nt', 'Tend', 'Tper');
     end
     % compute the curvature at the current time
     %

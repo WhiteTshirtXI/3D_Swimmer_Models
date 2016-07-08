@@ -59,7 +59,7 @@ ks = 2500;                     % stretching stiffness
 
 % curvature function that defines the gait
 %
-k0 = 4.0;
+k0 = 2.0;
 kappa_fun = @(s,t)(k0*sin(2*pi/Tper*t + pi*s));
 %kappa_fun = @(s,t)(k0*sin(2*pi/Tper*(Tper-t) + pi*(L-s)));
 
@@ -168,8 +168,8 @@ for tint=0:Nt
     %
     if( mod(tint,saveall)==0 && t~=0)
         foutw = sprintf('%s/%s_t%f.mat',datadir,fileprefix,t);
-	    save(foutw,'U','Uw','XTworm','Shat'); %%need to save Shat
-      end
+	    save(foutw,'U','Uw','XTworm','Shat', 'Nt', 'Tend', 'Tper');
+    end
     
     
     % compute the curvature at the current time

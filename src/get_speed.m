@@ -1,4 +1,4 @@
-function [MAV, U]=get_speed(XTworm)
+function [MAV, U]=get_speed(XTworm, totalTimeStep, totalDuration, strokePeriod)
 
 % function [MAV, U]=get_speed(XTworm)
 %
@@ -9,7 +9,7 @@ function [MAV, U]=get_speed(XTworm)
 % stroke
 
 
-Nt_per_T=100;  % here is where 100 time slices is assumed
+Nt_per_T= 100;  % here is where 100 time slices is assumed
 Xcm=squeeze(mean(XTworm)); % get the center of mass in x,y
 
 XXX = Xcm(:,(Nt_per_T+1):end) - Xcm(:,1:(end-Nt_per_T));  % take moving average over period
