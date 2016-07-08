@@ -10,7 +10,7 @@ Ly = 2;
 xmin=-Lx/2;
 ymin=-Ly/2;
 K  = Lx/Ly;
-Ny = 128;
+Ny = 64;
 Nx = K*Ny;
 dx = Lx/Nx;
 
@@ -18,7 +18,7 @@ dx = Lx/Nx;
 %
 t0    = 0.1;
 dtout = 0.1;
-Tend  = 10.0;
+Tend  = 2.0;
 
 
 % grid point positions
@@ -32,15 +32,13 @@ y = ymin + dx*(0:Ny-1)';
 %
 k=1;
 for t = t0:dtout:Tend
-  filename = sprintf('./data/imworm_n128_t%f.mat',t);
+  filename = sprintf('./diffdata/stress_t%f.mat',t);
   load(filename);
-  quiver(x,y,U(:,:,1),U(:,:,2));
-  hold on;
-  plot(XTworm(:,1,k),XTworm(:,2,k),'bo');
-  axis([xmin xmin+Lx ymin ymin+Ly]);
-  set(gca,'plotboxaspectratio',[Lx Ly 1]);
-  pause(0.05);
-  hold off;
+  hold on
+  s = stressForce;
+  trs = s(:,:,1) + s(:,:,3);
+  contourf(trs');
+  pause(0.1);
   k = k+10;
 end
 
