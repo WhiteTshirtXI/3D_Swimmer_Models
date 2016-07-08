@@ -1,4 +1,4 @@
-
+addpath('./src/');
 % output locations
 %
 datadir    = './diffdata';  
@@ -26,7 +26,9 @@ for t = t0:dtout:Tend
   fluidForce = absDifference(data1.U, data2.U);
   wormForce = absDifference(data1.Uw, data2.Uw);
   wormPosition = absDifference(data1.XTworm, data2.XTworm);
-  stressForce = absDifference(data1.Shat, data2.Shat);
+  s1 = real(ifft2(data1.Shat));
+  s2 = real(ifft2(data2.Shat));
+  stressForce = absDifference(s1, s2);
   speed = absDifference(speed1, speed2);
   save(foutn1, 'fluidForce');
   save(foutn2, 'wormForce');
