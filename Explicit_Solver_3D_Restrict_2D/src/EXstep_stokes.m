@@ -2,11 +2,11 @@ function [X,Uw,u,E,uhat] = EXstep_stokes(Xn,dt,fbhat_ext,ks,kb,kappa,grid)
      
   % form the spreading operator
   spfactor = grid.ds/(grid.dx*grid.dx*grid.dx);
-  Sm = spreadmatrix3_vc_vec(Xn,grid.Nx,grid.Ny,grid.Nz,grid.dx);
+  Sm = spreadmatrix3_vc(Xn,grid.Nx,grid.Ny,grid.Nz,grid.dx);
     
   % Evaluate the forces at the current position
-  [Fb,Kx] = bending_force_vec3(Xn,kappa,kb,grid.ds);  
-  [Fs,St] = stretch_force_vec3(Xn,ks,grid.ds);
+  [Fb,Kx] = bending_force3(Xn,kappa,kb,grid.ds);  
+  [Fs,St] = stretch_force3(Xn,ks,grid.ds);
   F  = Fb + Fs;
   
   % compute the elastic energy of the worm
