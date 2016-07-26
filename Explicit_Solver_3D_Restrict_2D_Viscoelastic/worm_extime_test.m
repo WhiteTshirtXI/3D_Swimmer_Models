@@ -10,9 +10,9 @@ restart = false;
 lastsaved = .5;
 % define the domain and the grid spacing
 %
-Lx = 2;
-Ly = 2;
-Lz = 2;
+Lx = 2*pi;
+Ly = 2*pi;
+Lz = 2*pi;
 % center the domain at the origin
 %
 xmin=-Lx/2;
@@ -28,7 +28,7 @@ dy = Ly/Ny;
 dz = Lz/Nz;
 % Viscoelastic Fluid Parameters
 %
-lam = 0.0;        % relaxation time
+lam = 0.3;        % relaxation time
 diffconst = 0;   % diffusion =  (diffconst*dx)^2
 xi=0.5;           % polymer viscosity/solvent viscosity
 % worm paramters
@@ -55,26 +55,9 @@ saveall = 10*saveit;      % frequency of output all data
 % output locations
 %
 datadir    = './data';  
-runname    = 'exworm_3D_R_2D';
+runname    = 'exworm_3D_R_2D_VE';
 fileprefix = sprintf('%s_n%03d',runname,Ny);
 paramfile  = sprintf('%s/PARAMS_%s.txt',datadir,fileprefix);
-%%%%%%%%%%-----END INPUT PARAMETERS-----%%%%%%%%%%
-% pack up the grid parameters into a data structure
-%
-grid.Lx   = Lx;
-grid.Ly   = Ly;
-grid.Lz   = Lz;
-grid.xmin = xmin;
-grid.ymin = ymin;
-grid.zmin = zmin;
-grid.Nx   = Nx;
-grid.Ny   = Ny;
-grid.Nz   = Nz;
-grid.N    = N;
-grid.ds   = ds;
-grid.dx   = dx;
-grid.dy   = dy;
-grid.dz   = dz;
 % preallocate for speed
 %
 outcount_tot = round(Tend/(saveit*dt))+1;
@@ -83,6 +66,15 @@ XTworm=zeros(N,3,outcount_tot);
 %
 kappa0 = kappa_fun(s,0);
 X = initialize_worm(kappa0, ds);
+% Obtain 4-roll Parameters, Stress Tensor, and Right-Hand Side Equation
+[grid,params,Shat,newRHS] = get_4roll_inputs_3d(Ny,lam,xi,diffconst);
+%%%%%%%%%%-----END INPUT PARAMETERS-----%%%%%%%%%%
+% pack up the grid parameters into a data structure
+%
+grid.N    = N;
+grid.ds   = ds;
+grid.dy   = dy;
+grid.dz   = dz;
 % write parameters to file
 %
 fileID = fopen(paramfile,'w');
@@ -116,6 +108,10 @@ end
 %
 tic
 for tint=0:Nt
+     if(isnan(Shat(1,1,1,1)))  % if the stress blows up stop running
+        sprintf('warning, nans');
+        break
+    end
     fprintf('Time step %i of %i, time=%f \n',tint,Nt,t);
     % record the worm positons
     %
@@ -128,14 +124,24 @@ for tint=0:Nt
     % modify save need shat
     if(mod(tint,saveall) == 0 && t~=0)
         foutw = sprintf('%s/%s_t%f.mat',datadir,fileprefix,t);
-        save(foutw,'U','Uw','XTworm');
+        save(foutw,'U','Uw','XTworm','Shat','newRHS');
     end
     % compute the curvature at the current time
     kappa0 = kappa_fun(s,t);
-    % set the external body forces to zero for stokes solve
-    fbhat = zeros(Nx, Ny, Nz, 3);
+    if(lam == 0)  % Stokes solve
+        fbhat = zeros(Nx, Ny, Nz, 3);   
+    else  % Compute VE force
+        fbhat = get_veforcehat_3d(Shat,xi,grid);
+    end
+    
+    % Find Velocity
+    % Solve Stokes equation with VE stress
     % advance swimmer in time using forward euler
     [X,Uw,U,Eb,uhat] = EXstep_stokes(X,dt,fbhat,ks,kb,kappa0,grid);
+    % Update the stress tensor if not solving Stokes
+    if(lam~=0)
+        [Shat, newRHS] = update_Shat_3d(uhat,grid,Shat,params.nu,dt,lam,newRHS);
+    end
     % fprintf('  Elastic energy = %g \n \n',Eb);
     % update time
     t = t+dt; 
