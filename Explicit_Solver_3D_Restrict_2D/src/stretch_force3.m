@@ -1,4 +1,4 @@
-function [F,St] = stretch_force(X,ks,ds);
+function [F,St] = stretch_force3(X,ks,ds);
   
   % record the number of points
   %

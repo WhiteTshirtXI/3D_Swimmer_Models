@@ -20,9 +20,9 @@ ymin=-Ly/2;
 zmin=-Lz/2;
 % number of grid points and the grid spacing
 %
-Nx = 16;
-Ny = 16;
-Nz = 16;
+Nx = 64;
+Ny = 64;
+Nz = 64;
 dx = Lx/Nx;
 dy = Ly/Ny;
 dz = Lz/Nz;
@@ -48,7 +48,7 @@ kappa_fun = @(s,t)(k0*sin(2*pi/Tper*t + pi*s));
 % time stepping information
 %
 dt     = 2.5e-5;           % time step [s]
-Tend   = 5;              % end time [s]
+Tend   = 3;              % end time [s]
 Nt     = round(Tend/dt);  % number of time steps to take
 saveit = round(0.01/dt);  % frequency of output swimmer positions
 saveall = 10*saveit;      % frequency of output all data

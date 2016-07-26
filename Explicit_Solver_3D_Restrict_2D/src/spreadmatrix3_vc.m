@@ -15,6 +15,7 @@
 %
 %  this code assumes for a periodic [0,Lx]^3 grid
 %
+% it is assumed that dx = dy = dz
 function S = spreadmatrix3_vc(X,Nx,Ny,Nz,dx)
   
   % record the number of unknowns
@@ -30,7 +31,6 @@ function S = spreadmatrix3_vc(X,Nx,Ny,Nz,dx)
   % loop over the IB points
   %
   for n=1:Nib
-    n
     % (xg,yg,zg) is the scaled IB loction 
     %
     xg = X(n,1)/dx + 1;
