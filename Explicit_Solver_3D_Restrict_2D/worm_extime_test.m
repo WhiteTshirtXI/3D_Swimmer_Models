@@ -1,5 +1,5 @@
 clear
-%  2D Stokes code with an 
+%  3D Stokes code with an 
 %  with immersed boundary worm
 % add path for the source code
 %
@@ -12,29 +12,26 @@ lastsaved = .5;
 %
 Lx = 2;
 Ly = 2;
+Lz = 2;
 % center the domain at the origin
 %
 xmin=-Lx/2;
 ymin=-Ly/2;
+zmin=-Lz/2;
 % number of grid points and the grid spacing
 %
-K  = Lx/Ly;
+Nx = 16;
 Ny = 16;
-Nx = K*Ny;
+Nz = 16;
 dx = Lx/Nx;
+dy = Ly/Ny;
+dz = Lz/Nz;
 % Viscoelastic Fluid Parameters
 %
-lam = 0.3;        % relaxation time
+lam = 0.0;        % relaxation time
 diffconst = 0;   % diffusion =  (diffconst*dx)^2
 xi=0.5;           % polymer viscosity/solvent viscosity
-% Instantiate Stress Tensor, RHS Equations, Parameter Data Structure
-%
-[params,Shat,newRHS]=get_4roll_inputs(Ny,lam,xi,diffconst);
-% unpack needed parameters
-nu = params.nu;
-dc = params.diffconst;
 % worm paramters
-%
 %
 L  = 1.0;                      % length of the worm [mm]
 Tper = 1.0;                    % period of the gait [s]
@@ -50,7 +47,7 @@ k0 = 2.0;
 kappa_fun = @(s,t)(k0*sin(2*pi/Tper*t + pi*s));
 % time stepping information
 %
-dt     = 2e-4;           % time step [s]
+dt     = 2.5e-5;           % time step [s]
 Tend   = 5;              % end time [s]
 Nt     = round(Tend/dt);  % number of time steps to take
 saveit = round(0.01/dt);  % frequency of output swimmer positions
@@ -58,7 +55,7 @@ saveall = 10*saveit;      % frequency of output all data
 % output locations
 %
 datadir    = './data';  
-runname    = 'exworm';
+runname    = 'exworm_3D_R_2D';
 fileprefix = sprintf('%s_n%03d',runname,Ny);
 paramfile  = sprintf('%s/PARAMS_%s.txt',datadir,fileprefix);
 %%%%%%%%%%-----END INPUT PARAMETERS-----%%%%%%%%%%
@@ -66,27 +63,35 @@ paramfile  = sprintf('%s/PARAMS_%s.txt',datadir,fileprefix);
 %
 grid.Lx   = Lx;
 grid.Ly   = Ly;
+grid.Lz   = Lz;
 grid.xmin = xmin;
 grid.ymin = ymin;
+grid.zmin = zmin;
 grid.Nx   = Nx;
 grid.Ny   = Ny;
+grid.Nz   = Nz;
 grid.N    = N;
 grid.ds   = ds;
 grid.dx   = dx;
+grid.dy   = dy;
+grid.dz   = dz;
 % preallocate for speed
 %
-outcount_tot=round(Tend/(saveit*dt))+1;
-XTworm=zeros(N,2,outcount_tot);
+outcount_tot = round(Tend/(saveit*dt))+1;
+XTworm=zeros(N,3,outcount_tot);
 % initialize swimmer body position
 %
 kappa0 = kappa_fun(s,0);
-X = initialize_worm(kappa0,ds);
+X = initialize_worm(kappa0, ds);
 % write parameters to file
 %
 fileID = fopen(paramfile,'w');
-fprintf(fileID,'Lx = %f\n',Lx);
-fprintf(fileID,'Ly = %f\n',Ly);
-fprintf(fileID, 'Ny = %d\n',Ny);
+fprintf(fileID,'Lx = %d\n',Lx);
+fprintf(fileID,'Ly = %d\n',Ly);
+fprintf(fileID,'Lz = %d\n',Lz);
+fprintf(fileID,'Nx = %d\n',Nx); 
+fprintf(fileID,'Ny = %d\n',Ny);
+fprintf(fileID,'Nz = %d\n',Nz);
 fprintf(fileID,'dt = %0.8f\n',dt);
 fprintf(fileID,'N (worm points) = %f\n',N);
 fprintf(fileID, ' bending stiffness, kb = %4.4f\n',kb);
@@ -111,9 +116,6 @@ end
 %
 tic
 for tint=0:Nt
-    if(isnan(Shat(1,1,1)))  % if the stress blows up stop running
-        break
-    end
     fprintf('Time step %i of %i, time=%f \n',tint,Nt,t);
     % record the worm positons
     %
@@ -124,30 +126,18 @@ for tint=0:Nt
     end
     % save all the data 
     % modify save need shat
-    if( mod(tint,saveall)==0 && t~=0)
+    if(mod(tint,saveall) == 0 && t~=0)
         foutw = sprintf('%s/%s_t%f.mat',datadir,fileprefix,t);
-        save(foutw,'U','Uw','XTworm','Shat', 'Nt', 'Tend', 'Tper');
+        save(foutw,'U','Uw','XTworm');
     end
     % compute the curvature at the current time
-    %
     kappa0 = kappa_fun(s,t);
     % set the external body forces to zero for stokes solve
-    % 
-    %
-    if(lam == 0)  % Stokes solve
-        fbhat = zeros(Nx, Ny, 2);
-    else
-        fbhat = get_veforcehat(Shat,xi,grid);
-    end
+    fbhat = zeros(Nx, Ny, Nz, 3);
     % advance swimmer in time using forward euler
     [X,Uw,U,Eb,uhat] = EXstep_stokes(X,dt,fbhat,ks,kb,kappa0,grid);
-    % Update the stress tensor if not solving Stokes
-    if(lam ~= 0)
-      [Shat, newRHS] = update_Shat(uhat,grid,Shat,nu,dt,lam,newRHS);
-    end  
     % fprintf('  Elastic energy = %g \n \n',Eb);
     % update time
-    %
     t = t+dt; 
     %toc
 end

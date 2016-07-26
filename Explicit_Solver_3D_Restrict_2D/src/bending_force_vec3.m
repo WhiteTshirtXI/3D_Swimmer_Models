@@ -1,4 +1,4 @@
-function [F,Kx] = bending_force(X,kappa,kb,ds);
+function [F,Kx] = bending_force_vec3(X,kappa,kb,ds);
   
   % record the number of points
   %
@@ -6,15 +6,14 @@ function [F,Kx] = bending_force(X,kappa,kb,ds);
   
   % initialize the forces
   %
-  F = zeros(N,2);
-  
-  
+  F = zeros(N,3);
+ 
   % compute the differences of the point location
   %  note that D(i) is the forward difference for point i
   %
   D = X(2:N,:) - X(1:N-1,:);
-  Dp = [D; [0 0]];
-  Dm = [[0 0]; D];
+  Dp = [D; [0 0 0]];
+  Dm = [[0 0 0]; D];
   
   % compute the energy density at each point
   %
@@ -26,12 +25,12 @@ function [F,Kx] = bending_force(X,kappa,kb,ds);
   
   % update the bending forces
   %
-  J = 2:N-1;
-  WW = repmat(W,1,2);
-  F(J-1,:) = F(J-1,:) - WW(J,:).*[  Dp(J,2)        , -Dp(J,1)        ];
-  F(J  ,:) = F(J  ,:) - WW(J,:).*[ -Dm(J,2)-Dp(J,2),  Dp(J,1)+Dm(J,1)];
-  F(J+1,:) = F(J+1,:) - WW(J,:).*[  Dm(J,2)        ,  -Dm(J,1)       ];
- 
+  for J = 2:N-1
+    WW = repmat(W,1,3);
+    F(J-1,:) = F(J-1,:) - WW(J,:).*[  Dp(J,2)        , -Dp(J,1)    , 0    ];
+    F(J  ,:) = F(J  ,:) - WW(J,:).*[ -Dm(J,2)-Dp(J,2),  Dp(J,1)+Dm(J,1), 0];
+    F(J+1,:) = F(J+1,:) - WW(J,:).*[  Dm(J,2)        ,  -Dm(J,1), 0       ];
+  end
   
 % $$$   
 % $$$   
@@ -46,6 +45,5 @@ function [F,Kx] = bending_force(X,kappa,kb,ds);
 % $$$   fprintf('max diff of F and G %g \n',max( abs(F(:)-G(:))));  
 % $$$   
   
-  % rescale the forces
-  %
-  F = kb * F/ds^3;
+% rescale the forces
+F = kb * F/ds^3;

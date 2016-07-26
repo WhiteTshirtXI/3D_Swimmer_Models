@@ -1,4 +1,4 @@
-function [F,Kx] = bending_force(X,kappa,kb,ds);
+function [F,Kx] = bending_force3(X,kappa,kb,ds);
   
   % record the number of points
   %
@@ -6,15 +6,14 @@ function [F,Kx] = bending_force(X,kappa,kb,ds);
   
   % initialize the forces
   %
-  F = zeros(N,2);
-  
+  F = zeros(N,3);
   
   % compute the differences of the point location
   %  note that D(i) is the forward difference for point i
   %
   D = X(2:N,:) - X(1:N-1,:);
-  Dp = [D; [0 0]];
-  Dm = [[0 0]; D];
+  Dp = [D; [0 0 0]];
+  Dm = [[0 0 0]; D];
   
   % compute the energy density at each point
   %
@@ -29,9 +28,9 @@ function [F,Kx] = bending_force(X,kappa,kb,ds);
   %
   for j=2:N-1
 
-   F(j-1,:) = F(j-1,:) - W(j)*[  Dp(j,2)        , -Dp(j,1)        ];
-   F(j  ,:) = F(j  ,:) - W(j)*[  -Dm(j,2)-Dp(j,2),  Dp(j,1)+Dm(j,1)];
-   F(j+1,:) = F(j+1,:) - W(j)*[  Dm(j,2)        ,  -Dm(j,1)        ];
+   F(j-1,:) = F(j-1,:) - W(j)*[  Dp(j,2)        , -Dp(j,1)   , 0      ];
+   F(j  ,:) = F(j  ,:) - W(j)*[  -Dm(j,2)-Dp(j,2),  Dp(j,1)+Dm(j,1), 0];
+   F(j+1,:) = F(j+1,:) - W(j)*[  Dm(j,2)        ,  -Dm(j,1)  , 0      ];
        
   end
     
