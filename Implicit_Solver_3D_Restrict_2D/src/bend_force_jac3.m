@@ -1,7 +1,7 @@
 %
 % bend_force_jac -- compute the Jacobian of the bending
 %
-function J = bend_force_jac(X,kappa,kb,ds)
+function J = bend_force_jac3(X,kappa,kb,ds)
     
   % record the number of points
   %
@@ -11,16 +11,21 @@ function J = bend_force_jac(X,kappa,kb,ds)
   %
   J11 = zeros(N,N);
   J12 = J11;
+  J13 = J11;
   J21 = J11;
   J22 = J11;
+  J23 = J11;
+  J31 = J11;
+  J32 = J11;
+  J33 = J11;
   
  
   % compute the differences of the point location
   %  note that D(i) is the forward difference for point i
   %
   D = X(2:N,:) - X(1:N-1,:);
-  Dp = [D; [0 0]];
-  Dm = [[0 0]; D];
+  Dp = [D; [0 0 0]];
+  Dm = [[0 0 0]; D];
 
   % compute the energy density at each point
   %
@@ -104,4 +109,4 @@ function J = bend_force_jac(X,kappa,kb,ds)
   
   % put the blocks into one big matrix and rescale
   %
-  J = kb*[ [J11, J12]; [J21, J22]];
+  J = kb*[ [J11, J12, J13]; [J21, J22, J23]; [J31 J32 J33]];

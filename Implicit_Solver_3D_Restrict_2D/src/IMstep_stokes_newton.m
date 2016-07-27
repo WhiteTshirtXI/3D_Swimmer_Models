@@ -6,8 +6,8 @@ function [X,Uw,U,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rto
     
     % form the spreading operator
     %
-    spfactor = grid.ds/(grid.dx*grid.dx);
-    Sm = spreadmatrix_vc_vec(Xn,grid.dx,grid.Nx,grid.Ny,grid.xmin,grid.ymin);
+    spfactor = grid.ds/(grid.dx*grid.dx*grid.dx);
+    Sm = spreadmatrix3_vc(Xn,grid.Nx,grid.Ny,grid.Nz,grid.dx);
     
     % record the number of IB points
     %
@@ -36,7 +36,7 @@ function [X,Uw,U,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rto
     %
     epsilon = 1.2*grid.ds;
     mu = 1.0;
-    M = form_reg_stokes_matrix(Xn,epsilon,mu);
+    M = form_reg_stokes_matrix_3D(Xn,epsilon,mu);
     M = grid.ds*M;
  
     
@@ -46,20 +46,20 @@ function [X,Uw,U,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rto
             
         % compute the force Jacobians
         %
-        Jb = bend_force_jac(X,kappa,kb,grid.ds);
-        Js = stretch_force_jac(X,ks,grid.ds);
+        Jb = bend_force_jac3(X,kappa,kb,grid.ds);
+        Js = stretch_force_jac3(X,ks,grid.ds);
         JF = Jb + Js;
 
         % make approximate J for preconditioning
         %
         %J = eye(2*N,2*N) - dt*SSblock*JF;
-        J = speye(2*N,2*N) - dt*M*JF;
+        J = speye(3*N,3*N) - dt*M*JF;
         
         % invert Jacobian using J as preconditioner
         %
         A = @(Y)JMfun(Y,JF,Sm,spfactor,dt,grid);
         [dX,flag,relres,iter] = gmres(A,-G(:),20,gmrestol,20,J);
-        dX = reshape(dX,N,2);
+        dX = reshape(dX,N,3);
         
         % record the number of function calls
         %
@@ -129,23 +129,26 @@ function W = JMfun(Y,JF,Sm,spfactor,dt,grid);
    
   % reshape before spreading
   %
-  F  = reshape(Z,grid.N,2);
+  F  = reshape(Z,grid.N,3);
    
   % spread and reshape to Eulerian grid 
   %
-  fb = spfactor * reshape(Sm*F,grid.Nx,grid.Ny,2); 
+  fb = spfactor * reshape(Sm*F,grid.Nx,grid.Ny,grid.Nz,3); 
    
   % solve Stokes equations
   %
-  fbhat = fft2( fb );
-  [uhat,phat]=stokes_solve_fourier(fbhat,grid.Lx,grid.Ly);
-  U = real( ifft2( uhat ) );
+  for d = 1:3
+      fbhat(:,:,:,d) = fftn(fb(:,:,:,d));
+  end
+  uhat = stokes_solve_fourier_3d(fbhat,grid.Lx,grid.Ly,grid.Lz);
   
+  for i = 1:3
+      U(:,:,:,i) = real ( ifftn ( uhat(:,:,:,i)));
+  end
   
-    
   % interpolate back to the IB points
   %
-  Uw = Sm'*reshape(U,grid.Nx*grid.Ny,2);   
+  Uw = Sm'*reshape(U,grid.Nx*grid.Ny*grid.Nz,3);   
   
   % finish application of Jacobian
   %
@@ -161,27 +164,33 @@ function [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid)
 
    % Evaluate the forces at the current position
    %
-   [Fb,Kx] = bending_force_vec(X,kappa,kb,grid.ds);  
-   [Fs,St] = stretch_force_vec(X,ks,grid.ds);
+   [Fb,Kx] = bending_force3(X,kappa,kb,grid.ds);  
+   [Fs,St] = stretch_force3(X,ks,grid.ds);
    F  = Fb + Fs;
     
    % spread forces
    %
-   fb = spfactor * reshape(Sm*F,grid.Nx,grid.Ny,2);
+   fb = spfactor * reshape(Sm*F,grid.Nx,grid.Ny,grid.Nz,3);
     
    % solve stokes
    %
-   fbhat = fft2( fb ) + fbhat_ext;
-   [uhat,phat]=stokes_solve_fourier(fbhat,grid.Lx,grid.Ly);
-   U = real( ifft2( uhat ) );
+   for d = 1:3
+       fbhat(:,:,:,d) = fftn(fb(:,:,:,d));
+   end
    
+   fbhat = fbhat + fbhat_ext;
+   uhat = stokes_solve_fourier_3d(fbhat,grid.Lx,grid.Ly,grid.Lz);
+   
+   for i = 1:3
+       U(:,:,:,i) = real( ifftn( uhat(:,:,:,i)));
+   end
    %update Shat
    %[Shat,newRHS] = update_Shat(uhat,grid,Shat,nu,dt,lam,newRHS);
    %^ update stress in wrapper
     
    % interpolate back to the IB points
    %
-   Uw = Sm'*reshape(U,grid.Nx*grid.Ny,2);
+   Uw = Sm'*reshape(U,grid.Nx*grid.Ny*grid.Nz,3);
    
    % eval function 
    %

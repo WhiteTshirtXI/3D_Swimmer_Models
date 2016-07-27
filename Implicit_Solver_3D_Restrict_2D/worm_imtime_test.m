@@ -15,34 +15,30 @@ lastsaved = .5;
 %
 Lx = 2;
 Ly = 2;
+Lz = 2;
 
 % center the domain at the origin
 %
 xmin=-Lx/2;
 ymin=-Ly/2;
+zmin=-Lz/2;
 
 % number of grid points and the grid spacing
 %
-K  = Lx/Ly;
-Ny = 16;
-Nx = K*Ny;
+Nx = 64;
+Ny = 64;
+Nz = 64;
 dx = Lx/Nx;
+dy = Ly/Ny;
+dz = Lz/Nz;
 
 %fluid parameters
-lam = 0.3;
+lam = 0;
 xi = 0.5;
 diffconst = 0;
 %tend = 10.0;
 %t0 = 0;                %<--- i think this is unnecessary
 %savetime = 1;
-
-
-%initialize Shat
-[params,Shat,newRHS] = get_4roll_inputs(Ny,lam,xi,diffconst);
-
-
-%unpack params
-nu = params.nu;
 
 % worm paramters
 %
@@ -82,7 +78,7 @@ gmrestol = 5e-5;    % gmres tolerance for jacobian solve
 % output locations
 %
 datadir    = './data';  
-runname    = 'imworm';
+runname    = 'imworm_3D_R_2D';
 fileprefix = sprintf('%s_n%03d',runname,Ny);
 paramfile  = sprintf('%s/PARAMS_%s.txt',datadir,fileprefix);
 
@@ -94,18 +90,23 @@ paramfile  = sprintf('%s/PARAMS_%s.txt',datadir,fileprefix);
 %
 grid.Lx   = Lx;
 grid.Ly   = Ly;
+grid.Lz   = Lz;
 grid.xmin = xmin;
 grid.ymin = ymin;
+grid.zmin = zmin;
 grid.Nx   = Nx;
 grid.Ny   = Ny;
+grid.Nz   = Nz;
 grid.N    = N;
 grid.ds   = ds;
 grid.dx   = dx;
+grid.dy   = dy;
+grid.dz   = dz;
 
 % preallocate for speed
 %
 outcount_tot=round(Tend/(saveit*dt))+1;
-XTworm=zeros(N,2,outcount_tot);
+XTworm=zeros(N,3,outcount_tot);
 
 
 % initialize swimmer body position
@@ -122,17 +123,16 @@ X = initialize_worm(kappa0,ds);
 fileID = fopen(paramfile,'w');
 fprintf(fileID,'Lx = %f\n',Lx);
 fprintf(fileID,'Ly = %f\n',Ly);
-fprintf(fileID, 'Ny = %d\n',Ny);
+fprintf(fileID,'Lz = %f\n',Lz);
+fprintf(fileID,'Nx = %f\n',Nx);
+fprintf(fileID,'Ny = %d\n',Ny);
+fprintf(fileID,'Nz = %f\n',Nz);
 fprintf(fileID,'dt = %0.8f\n',dt);
 fprintf(fileID,'N (worm points) = %f\n',N);
 fprintf(fileID, ' bending stiffness, kb = %4.4f\n',kb);
 fprintf(fileID, ' stretching stiffness, ks =  %4.4f\n',ks);
 fprintf(fileID, ' End time = %f\n',Tend);
 fclose(fileID);
-
-
-
-
 
 % initialize output counter and time -- overwritten if restart
 %
@@ -168,33 +168,17 @@ for tint=0:Nt
     %
     if( mod(tint,saveall)==0 && t~=0)
         foutw = sprintf('%s/%s_t%f.mat',datadir,fileprefix,t);
-	    save(foutw,'U','Uw','XTworm','Shat', 'Nt', 'Tend', 'Tper');
+	    save(foutw,'U','Uw','XTworm');
     end
-    
     
     % compute the curvature at the current time
     %
     kappa0 = kappa_fun(s,t);
-
-    % set the external body forces to zero for stokes solve
-    %   this coudl be nonzero for viscoelastic fluid
-    %
-    if(isnan(Shat(1,1,1)))  % if the stress blows up stop running
-        break
-    end  
     
-if(lam==0)
-    fbhat = zeros(Nx,Ny,2);
-else  % Compute VE force
-         
-         fbhat = get_veforcehat(Shat,xi,grid);
-end
+    fbhat = zeros(Nx,Ny,Nz,3);
 
     % advance swimmer in time using backward euler
-    %pass out newRHS Shat// pass in lam nu Shat newRhS
-    [X,Uw,U,output] = IMstep_stokes_newton(X,dt,fbhat,ks,kb,kappa0,grid,rtol,rXtol,gmrestol); %do not need to pass Shat onwards
-    Uhat = fft2(U);
-    [Shat, newRHS] = update_Shat(Uhat,grid,Shat,nu,dt,lam,newRHS);
+    [X,Uw,U,output] = IMstep_stokes_newton(X,dt,fbhat,ks,kb,kappa0,grid,rtol,rXtol,gmrestol);
     
     % update time
     %

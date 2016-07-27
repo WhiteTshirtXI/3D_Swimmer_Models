@@ -1,4 +1,4 @@
-function [F,St] = stretch_force_vec(X,ks,ds);
+function [F,St] = stretch_force3(X,ks,ds);
   
   % record the number of points
   %
@@ -6,26 +6,29 @@ function [F,St] = stretch_force_vec(X,ks,ds);
   
   % initialize the forces
   %
-  F = zeros(N,2);
+  F = zeros(N,3);
   
   % compute the differences of the point location
   %  note that D(i) is the forward difference for point i
   %
   D = X(2:N,:) - X(1:N-1,:);
-  Dp = [D; [0 0]];
-  Dm = [[0 0]; D];
+  Dp = [D; [0 0 0]];
+  Dm = [[0 0 0]; D];
 
   % compute the current lengths
   %
   L = sqrt( sum(Dp.^2,2));
   
-  % update the forces spring-by-spring
+  
+  % loop over the springs and update the forces
   %
-  J=1:N-1;
-  T = repmat( (L(J)-ds)./L(J),1,2).*Dp(J,:);
-  F(J  ,:) = F(J  ,:) + T;
-  F(J+1,:) = F(J+1,:) - T;
-   
+  for j=1:N-1
+    
+    F(j  ,:) = F(j,:)   +  (L(j)-ds)*Dp(j,:)/L(j);
+    F(j+1,:) = F(j+1,:) -  (L(j)-ds)*Dp(j,:)/L(j);
+    
+  end
+
   % size of |X_{s}|
   %
   St = L/ds;

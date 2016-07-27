@@ -1,7 +1,7 @@
 %
 % stretch_force_jac -- compute the Jacobian of the stretching force
 %
-function J = stretch_force_jac(X,ks,ds)
+function J = stretch_force_jac3(X,ks,ds)
     
   % record the number of points
   %
@@ -12,8 +12,8 @@ function J = stretch_force_jac(X,ks,ds)
   %  note that D(i) is the forward difference for point i
   %
   D = X(2:N,:) - X(1:N-1,:);
-  Dp = [D; [0 0]];
-  Dm = [[0 0]; D];
+  Dp = [D; [0 0 0]];
+  Dm = [[0 0 0]; D];
 
   % compute the current lengths
   %
@@ -25,8 +25,13 @@ function J = stretch_force_jac(X,ks,ds)
   %
   J11 = zeros(N,N);
   J12 = J11;
+  J13 = J11;
   J21 = J11;
   J22 = J11;
+  J23 = J11;
+  J31 = J11;
+  J32 = J11;
+  J33 = J11;
   
   % loop over the springs
   %
@@ -63,5 +68,5 @@ function J = stretch_force_jac(X,ks,ds)
   
   % put the blocks into one big matrix and rescale
   %
-  J = [ [J11, J12]; [J21, J22]];
+  J = [ [J11, J12, J13]; [J21, J22, J23]; [J31 J32 J33]];
   J = ks*J/ds^2;
