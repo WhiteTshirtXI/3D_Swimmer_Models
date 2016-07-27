@@ -7,38 +7,43 @@
 %
 Lx = 2;
 Ly = 2;
+Lz = 2;
 xmin=-Lx/2;
 ymin=-Ly/2;
-K  = Lx/Ly;
-Ny = 128;
-Nx = K*Ny;
+zmin=-Lz/2;
+Ny = 64;
+Nx = 64;
+Nz = 64;
 dx = Lx/Nx;
+dy = Ly/Ny;
+dz = Lz/Nz;
 
 % time stepping info
 %
 t0    = 0.1;
 dtout = 0.1;
-Tend  = 10.0;
+Tend  = 3;
 
 
 % grid point positions
 %
 x = xmin + dx*(0:Nx-1)';
-y = ymin + dx*(0:Ny-1)';
-[x,y]=ndgrid(x,y);
+y = ymin + dy*(0:Ny-1)';
+z = zmin + dz*(0:Nz-1)';
+[x,y,z] = ndgrid(x,y,z);
 
 
 % record the number of outputs of position
 %
 k=1;
 for t = t0:dtout:Tend
-  filename = sprintf('./data/imworm_n128_t%f.mat',t);
+  filename = sprintf('./data/imworm_3D_R_2D_t%f.mat',t);
   load(filename);
-  quiver(x,y,U(:,:,1),U(:,:,2));
+  quiver3(x,y,z,U(:,:,:,1),U(:,:,:,2),U(:,:,:,3));
   hold on;
-  plot(XTworm(:,1,k),XTworm(:,2,k),'bo');
-  axis([xmin xmin+Lx ymin ymin+Ly]);
-  set(gca,'plotboxaspectratio',[Lx Ly 1]);
+  plot3(XTworm(:,1,k),XTworm(:,2,k),XTworm(:,3,k),'bo');
+  axis([xmin xmin+Lx ymin ymin+Ly zmin zmin+Lz]);
+  set(gca,'plotboxaspectratio',[Lx Ly Lz]);
   pause(0.05);
   hold off;
   k = k+10;
