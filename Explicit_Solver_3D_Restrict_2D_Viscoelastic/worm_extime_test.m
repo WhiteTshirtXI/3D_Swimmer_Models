@@ -10,9 +10,9 @@ restart = false;
 lastsaved = .5;
 % define the domain and the grid spacing
 %
-Lx = 2*pi;
-Ly = 2*pi;
-Lz = 2*pi;
+Lx = 2;
+Ly = 2;
+Lz = 2;
 % center the domain at the origin
 %
 xmin=-Lx/2;
