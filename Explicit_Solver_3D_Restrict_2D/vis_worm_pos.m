@@ -1,7 +1,7 @@
 %
 % animate the swimmer in lab frame 
 %
-load('./data/imworm_n032_t4.000000.mat');
+load('./data/exworm_3D_R_2D_t3.000000.mat');
 
 
 % this info should really be read in
