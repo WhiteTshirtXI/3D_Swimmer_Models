@@ -7,7 +7,7 @@
 %
 Lx = 2;
 Ly = 2;
-Lz = 3;
+Lz = 2;
 xmin=-Lx/2;
 ymin=-Ly/2;
 zmin=-Lz/2;
@@ -22,7 +22,7 @@ dz = Lz/Nz;
 %
 t0    = 0.1;
 dtout = 0.1;
-Tend  = 10.0;
+Tend  = 3;
 
 
 % grid point positions
@@ -37,13 +37,13 @@ z = zmin + dz*(0:Nz-1)';
 %
 k=1;
 for t = t0:dtout:Tend
-  filename = sprintf('./data/exworm_n128_t%f.mat',t);
+  filename = sprintf('./data/exworm_3D_R_2D_t%f.mat',t);
   load(filename);
-  quiver(x,y,z,U(:,:,:,1),U(:,:,:,2),U(:,:,:,3));
+  quiver3(x,y,z,U(:,:,:,1),U(:,:,:,2),U(:,:,:,3));
   hold on;
-  plot(XTworm(:,1,k),XTworm(:,2,k),'bo');
+  plot3(XTworm(:,1,k),XTworm(:,2,k),XTworm(:,3,k),'bo');
   axis([xmin xmin+Lx ymin ymin+Ly zmin zmin+Lz]);
-  set(gca,'plotboxaspectratio',[Lx Ly Lz 1]);
+  set(gca,'plotboxaspectratio',[Lx Ly Lz]);
   pause(0.05);
   hold off;
   k = k+10;
