@@ -3,7 +3,7 @@ function [MAV, U, Xcm]=get_speed(XTworm)
 % function [MAV, U]=get_speed(XTworm)
 %
 % Note that this function assumes that your data has
-% size(XTworm) = (Ns,2,T) where Ns is the number of points along the
+% size(XTworm) = (Ns,3,T) where Ns is the number of points along the
 % swimmer, 2 for the x,y positions of the swimmer, and T the time - vector
 % it is assumed that you have saved 100 time slices per period of the
 % stroke

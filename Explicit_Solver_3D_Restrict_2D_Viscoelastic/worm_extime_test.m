@@ -47,7 +47,7 @@ k0 = 2.0;
 kappa_fun = @(s,t)(k0*sin(2*pi/Tper*t + pi*s));
 % time stepping information
 %
-dt     = 2.5e-5;           % time step [s]
+dt     = 2.5e-6;           % time step [s]
 Tend   = 3;              % end time [s]
 Nt     = round(Tend/dt);  % number of time steps to take
 saveit = round(0.01/dt);  % frequency of output swimmer positions

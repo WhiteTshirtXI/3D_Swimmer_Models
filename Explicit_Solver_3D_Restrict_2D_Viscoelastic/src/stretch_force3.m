@@ -16,7 +16,7 @@ function [F,St] = stretch_force3(X,ks,ds);
   Dm = [[0 0 0]; D];
 
   % compute the current lengths
-  L = sqrt(sum(Dp.^2,3));
+  L = sqrt(sum(Dp.^2,2));
   
   % loop over the springs and update the forces
   for j=1:N-1
@@ -28,4 +28,4 @@ function [F,St] = stretch_force3(X,ks,ds);
   St = L/ds;
   
   % rescale forces
-  F = ks/ds^3 * F;
+  F = ks/ds^2 * F;
