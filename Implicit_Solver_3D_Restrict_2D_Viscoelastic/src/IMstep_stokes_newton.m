@@ -7,7 +7,7 @@ function [X,Uw,U,Uhat,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,gri
     % form the spreading operator
     %
     spfactor = grid.ds/(grid.dx*grid.dx*grid.dx);
-    Sm = spreadmatrix3_vc(Xn,grid.Nx,grid.Ny,grid.Nz,grid.dx);
+    Sm = spreadmatrix3_vc_vec(Xn,grid.dx,grid.Nx,grid.Ny,grid.Nz,grid.xmin,grid.ymin,grid.zmin);
     
     % record the number of IB points
     %
@@ -164,8 +164,8 @@ function [G,Uw,U,Uhat] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid)
 
    % Evaluate the forces at the current position
    %
-   [Fb,Kx] = bending_force3(X,kappa,kb,grid.ds);  
-   [Fs,St] = stretch_force3(X,ks,grid.ds);
+   [Fb,Kx] = bending_force_vec3(X,kappa,kb,grid.ds);  
+   [Fs,St] = stretch_force_vec3(X,ks,grid.ds);
    F  = Fb + Fs;
     
    % spread forces
