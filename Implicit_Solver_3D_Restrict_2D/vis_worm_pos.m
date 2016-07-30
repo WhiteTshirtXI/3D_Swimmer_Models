@@ -1,7 +1,7 @@
 %
 % animate the swimmer in lab frame 
 %
-load('./data/imworm_3D_R_2D_t3.000000.mat');
+load('./data/imworm_3D_n016_t3.000000.mat');
 
 
 % this info should really be read in
@@ -12,9 +12,9 @@ Lz = 2;
 xmin=-Lx/2;
 ymin=-Ly/2;
 zmin=-Lz/2;
-Nx = 64;
-Ny = 64;
-Nz = 64;
+Nx = 16;
+Ny = 16;
+Nz = 16;
 dx = Lx/Nx;
 dy = Ly/Ny;
 dz = Lz/Nx;

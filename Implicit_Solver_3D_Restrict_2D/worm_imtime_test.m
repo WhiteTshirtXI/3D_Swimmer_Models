@@ -25,9 +25,9 @@ zmin=-Lz/2;
 
 % number of grid points and the grid spacing
 %
-Nx = 64;
-Ny = 64;
-Nz = 64;
+Nx = 16;
+Ny = 16;
+Nz = 16;
 dx = Lx/Nx;
 dy = Ly/Ny;
 dz = Lz/Nz;
@@ -62,7 +62,7 @@ kappa_fun = @(s,t)(k0*sin(2*pi/Tper*t + pi*s));
 % time stepping information
 %
 dt     = 1e-3;           % time step [s]
-Tend   = 5;              % end time [s]
+Tend   = 1;              % end time [s]
 
 Nt     = round(Tend/dt);  % number of time steps to take
 saveit = round(0.01/dt);  % frequency of output swimmer positions
@@ -78,7 +78,7 @@ gmrestol = 5e-5;    % gmres tolerance for jacobian solve
 % output locations
 %
 datadir    = './data';  
-runname    = 'imworm_3D_R_2D';
+runname    = 'imworm_3D';
 fileprefix = sprintf('%s_n%03d',runname,Ny);
 paramfile  = sprintf('%s/PARAMS_%s.txt',datadir,fileprefix);
 
