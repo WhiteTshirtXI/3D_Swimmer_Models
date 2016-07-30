@@ -11,9 +11,9 @@ Lz = 2;
 xmin=-Lx/2;
 ymin=-Ly/2;
 zmin=-Lz/2;
-Ny = 64;
-Nx = 64;
-Nz = 64;
+Ny = 16;
+Nx = 16;
+Nz = 16;
 dx = Lx/Nx;
 dy = Ly/Ny;
 dz = Lz/Nz;
@@ -22,7 +22,7 @@ dz = Lz/Nz;
 %
 t0    = 0.1;
 dtout = 0.1;
-Tend  = 3;
+Tend  = 1;
 
 
 % grid point positions
@@ -37,7 +37,7 @@ z = zmin + dz*(0:Nz-1)';
 %
 k=1;
 for t = t0:dtout:Tend
-  filename = sprintf('./data/exworm_3D_R_2D_VE_t%f.mat',t);
+  filename = sprintf('./data/exworm_3D_VE_n016_t%f.mat',t);
   load(filename);
   quiver3(x,y,z,U(:,:,:,1),U(:,:,:,2),U(:,:,:,3));
   hold on;

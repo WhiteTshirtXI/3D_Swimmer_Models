@@ -6,13 +6,13 @@ function [grid,params,Shat,newRHS]=get_4roll_inputs_3d(Ny,lam,xi,diffconst)
 
 % define the domain and the grid spacing
 %
-Lx = 2*pi;
-Ly = 2*pi;
-Lz = 2*pi;
+Lx = 2;
+Ly = 2;
+Lz = 2;
 
-xmin=-pi;
-ymin=-pi;
-zmin=-pi;
+xmin=-Lx/2;
+ymin=-Ly/2;
+zmin=-Lz/2;
 
 
 Kx  = Lx/Ly;  % for non-square domains
