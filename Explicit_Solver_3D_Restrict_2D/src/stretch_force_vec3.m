@@ -13,7 +13,7 @@ function [F,St] = stretch_force_vec3(X,ks,ds);
   %
   D = X(2:N,:) - X(1:N-1,:);
   Dp = [D; [0 0 0]];
-  Dm = [[0 0 0]; D];
+  % Dm = [[0 0 0]; D];
 
   % compute the current lengths
   %
