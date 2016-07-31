@@ -27,10 +27,11 @@ N1z =  floor((nz-1)/2);
 N2z = (nz/2)*ones(rem(nz+1,2));
 freqz = (2*pi/Lz)*[(0:N1z)  N2z (-N1z:-1)]';
 
-[k1, k2, k3]=ndgrid(freqx,freqy,freqz);
+[k1, k2, k3] = ndgrid(freqx,freqy,freqz);
 
-
-cutoff=exp(-36*(sqrt((k1/(nx/2)).^2+(k2/(ny/2)).^2+(k3/(nz/2)).^2)).^36);
+cutoff = zeros(nx, ny, nz);
+fftcutoff = zeros(nx, ny, nz, nd);
+cutoff = exp(-36*(sqrt((k1/(nx/2)).^2+(k2/(ny/2)).^2+(k3/(nz/2)).^2)).^36);
 
 for i=1:nd
    % fftcutoff(:,:,:,i)=fftshift(cutoff);

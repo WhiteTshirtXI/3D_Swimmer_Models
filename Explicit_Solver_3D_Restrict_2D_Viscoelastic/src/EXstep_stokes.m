@@ -15,6 +15,8 @@ function [X,Uw,U,E,Uhat] = EXstep_stokes(Xn,dt,fbhat_ext,ks,kb,kappa,grid)
    
   % spread forces
   fb = spfactor * reshape(Sm*F,grid.Nx,grid.Ny,grid.Nz,3);
+  % Preallocate space for speed.
+  fbhat = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
   
   % compute total force in fourier space
   for d = 1:3
@@ -24,6 +26,8 @@ function [X,Uw,U,E,Uhat] = EXstep_stokes(Xn,dt,fbhat_ext,ks,kb,kappa,grid)
   
   % solve stokes in fourier space
   Uhat = stokes_solve_fourier_3d(fbhat,grid.Lx,grid.Ly,grid.Lz);
+  % Preallocate space for speed.
+  U = zeros(grid.Nz, grid.Ny, grid.Nz, 3);
   
   for i = 1:3
       U(:,:,:,i) = real(ifftn(Uhat(:,:,:,i)));

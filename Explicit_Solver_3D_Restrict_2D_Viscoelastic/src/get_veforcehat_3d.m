@@ -26,6 +26,9 @@ gradShat = matrix_derivative_fourier_3d(Shat,grid.Lx,grid.Ly,grid.Lz);
 % divS_2 = dxS12+dyS22+dzS23 = 4 + 11 + 15
 % divS_3 = dxS13+dyS23+dzS33 = 7 + 14 + 18
 
+% Preallocate for speed.
+sizeS = size(gradShat);
+divShat = zeros(sizeS(1), sizeS(2), sizeS(3), 3);
 
 divShat(:,:,:,1)=gradShat(:,:,:,1)+gradShat(:,:,:,5)+gradShat(:,:,:,9);
 divShat(:,:,:,2)=gradShat(:,:,:,4)+gradShat(:,:,:,11)+gradShat(:,:,:,15);
