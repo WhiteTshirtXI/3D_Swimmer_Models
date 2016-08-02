@@ -119,23 +119,30 @@ function udgradshat=nludgradshat_3d(Uhate,gradShe)
 % by filtering the spectrum and ifft and multiplying
 % and fft and truncating
 
-
-U=real(ifftn(Uhate));
-gS=real(ifftn(gradShe));
-
+% Preallocate
+sizeU = size(Uhate);
+sizeS = size(gradShe);
+U = zeros(sizeU(1), sizeU(2), sizeU(3), 3);
+gS = zeros(sizeS(1), sizeS(2), sizeS(3), 18);
+udgradsext = zeros(sizeU(1), sizeU(2), sizeU(3), 6);
+udgradshat = zeros(sizeU(1), sizeU(2), sizeU(3), 6);
+for ind=1:3
+    U(:,:,:,ind)=real(ifftn(Uhate(:,:,:,ind)));
+end
+for ind = 1:18
+    gS(:,:,:,ind)=real(ifftn(gradShe(:,:,:,ind)));
+end
 udgradsext(:,:,:,1)=U(:,:,:,1).*gS(:,:,:, 1)+U(:,:,:,2).*gS(:,:,:, 2)+U(:,:,:,3).*gS(:,:,:, 3);
 udgradsext(:,:,:,2)=U(:,:,:,1).*gS(:,:,:, 4)+U(:,:,:,2).*gS(:,:,:, 5)+U(:,:,:,3).*gS(:,:,:, 6);
 udgradsext(:,:,:,3)=U(:,:,:,1).*gS(:,:,:, 7)+U(:,:,:,2).*gS(:,:,:, 8)+U(:,:,:,3).*gS(:,:,:, 9);
 udgradsext(:,:,:,4)=U(:,:,:,1).*gS(:,:,:,10)+U(:,:,:,2).*gS(:,:,:,11)+U(:,:,:,3).*gS(:,:,:,12);
 udgradsext(:,:,:,5)=U(:,:,:,1).*gS(:,:,:,13)+U(:,:,:,2).*gS(:,:,:,14)+U(:,:,:,3).*gS(:,:,:,15);
 udgradsext(:,:,:,6)=U(:,:,:,1).*gS(:,:,:,16)+U(:,:,:,2).*gS(:,:,:,17)+U(:,:,:,3).*gS(:,:,:,18);
-
-
-
 for ind = 1:6
-    udgradshat(:,:,:,ind)=fftn(udgradsext(:,:,:,ind));
-    
+    udgradshat(:,:,:,ind)=fftn(udgradsext(:,:,:,ind)); 
 end
+
+
 
 
 
@@ -159,6 +166,9 @@ szf=size(Shat);
 nx=szf(1);
 ny=szf(2);
 nz=szf(3);
+
+%Preallocate
+sigout = zeros(nx, ny, nz, 6);
 
 sigout(:,:,:,1) =    -UdgradShat(:,:,:,1)+   2*(SgUthat(:,:,:,1)) ...
                     -(1/lam)*Shat(:,:,:,1)+(1/lam)*2*gradUh(:,:,:,1);
@@ -190,35 +200,33 @@ function sguthat=nlsguthat_3d(gradUhe,Shate)
 % by extending the spectrum and ifft and multiplying
 % and fft and truncating and ifft again
 
-gU=real(ifftn(gradUhe));
-S=real(ifftn(Shate));
+% Preallocate
+gU = zeros(size(gradUhe));
+S = zeros(size(Shate));
+for ind=1:9
+    gU(:,:,:,ind)=real(ifftn(gradUhe(:,:,:,ind)));
+end
+
+for ind=1:6
+    S(:,:,:,ind)=real(ifftn(Shate(:,:,:,ind)));
+end
+
+sizeS = size(S);
+sgutext = zeros(sizeS(1), sizeS(2), sizeS(3), 9);
+sguthat = zeros(size(sgutext));
 
 sgutext(:,:,:,1)=S(:,:,:,1).*gU(:,:,:,1)+S(:,:,:,2).*gU(:,:,:,2)+S(:,:,:,3).*gU(:,:,:,3);
-
 sgutext(:,:,:,2)=S(:,:,:,1).*gU(:,:,:,4)+S(:,:,:,2).*gU(:,:,:,5)+S(:,:,:,3).*gU(:,:,:,6);
-
 sgutext(:,:,:,3)=S(:,:,:,1).*gU(:,:,:,7)+S(:,:,:,2).*gU(:,:,:,8)+S(:,:,:,3).*gU(:,:,:,9);
-
 sgutext(:,:,:,4)=S(:,:,:,2).*gU(:,:,:,1)+S(:,:,:,4).*gU(:,:,:,2)+S(:,:,:,5).*gU(:,:,:,3);
-
 sgutext(:,:,:,5)=S(:,:,:,2).*gU(:,:,:,4)+S(:,:,:,4).*gU(:,:,:,5)+S(:,:,:,5).*gU(:,:,:,6);
-
 sgutext(:,:,:,6)=S(:,:,:,2).*gU(:,:,:,7)+S(:,:,:,4).*gU(:,:,:,8)+S(:,:,:,5).*gU(:,:,:,9);
-
 sgutext(:,:,:,7)=S(:,:,:,3).*gU(:,:,:,1)+S(:,:,:,5).*gU(:,:,:,2)+S(:,:,:,6).*gU(:,:,:,3);
-
 sgutext(:,:,:,8)=S(:,:,:,3).*gU(:,:,:,4)+S(:,:,:,5).*gU(:,:,:,5)+S(:,:,:,6).*gU(:,:,:,6);
-
 sgutext(:,:,:,9)=S(:,:,:,3).*gU(:,:,:,7)+S(:,:,:,5).*gU(:,:,:,8)+S(:,:,:,6).*gU(:,:,:,9);
 
-
-sguthat=fftn(sgutext);
-
-
 for ind = 1:9
-    
     sguthat(:,:,:,ind)=fftn(sgutext(:,:,:,ind));
-    
 end
 
 

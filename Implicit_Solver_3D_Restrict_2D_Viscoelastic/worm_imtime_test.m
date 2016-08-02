@@ -25,9 +25,9 @@ zmin=-Lz/2;
 
 % number of grid points and the grid spacing
 %
-Nx = 16;
-Ny = 16;
-Nz = 16;
+Nx = 128;
+Ny = 128;
+Nz = 128;
 dx = Lx/Nx;
 dy = Ly/Ny;
 dz = Lz/Nz;
@@ -35,7 +35,7 @@ dz = Lz/Nz;
 %fluid parameters
 lam = 0.3;
 xi = 0.5;
-diffconst = 0;
+diffconst = 0.5;
 %tend = 10.0;
 %t0 = 0;                %<--- i think this is unnecessary
 %savetime = 1;
@@ -62,7 +62,7 @@ kappa_fun = @(s,t)(k0*sin(2*pi/Tper*t + pi*s));
 % time stepping information
 %
 dt     = 1e-3;           % time step [s]
-Tend   = 3;              % end time [s]
+Tend   = 1e-2;              % end time [s]
 
 Nt     = round(Tend/dt);  % number of time steps to take
 saveit = round(0.01/dt);  % frequency of output swimmer positions
