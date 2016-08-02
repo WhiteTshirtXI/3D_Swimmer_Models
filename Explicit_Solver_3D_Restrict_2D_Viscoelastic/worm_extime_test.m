@@ -29,7 +29,7 @@ dz = Lz/Nz;
 % Viscoelastic Fluid Parameters
 %
 lam = 0.3;        % relaxation time
-diffconst = 0.5;   % diffusion =  (diffconst*dx)^2
+diffconst = 8;   % diffusion =  (diffconst*dx)^2
 xi=0.5;           % polymer viscosity/solvent viscosity
 % worm paramters
 %
