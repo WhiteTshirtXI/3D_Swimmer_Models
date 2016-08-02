@@ -13,12 +13,6 @@ function [X,Uw,U,Uhat,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,gri
     %
     N = size(Xn,1);
 
-    % form block S'*S operator for preconditioning
-    %
-    SS = spfactor*Sm'*Sm;
-    Zm = 0*SS;
-    SSblock = [[SS, Zm];[Zm,SS]];
-
     % initialize and begin solver loop
     %
     X = Xn;
@@ -34,7 +28,7 @@ function [X,Uw,U,Uhat,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,gri
     
     % for a Stokelets matrix for preconditioning
     %
-    epsilon = 1.2*grid.ds;
+    epsilon = 1.5*grid.ds;
     mu = 1.0;
     M = form_reg_stokes_matrix_3D(Xn,epsilon,mu);
     M = grid.ds*M;
@@ -137,11 +131,13 @@ function W = JMfun(Y,JF,Sm,spfactor,dt,grid);
    
   % solve Stokes equations
   %
+  fbhat = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
   for d = 1:3
       fbhat(:,:,:,d) = fftn(fb(:,:,:,d));
   end
   uhat = stokes_solve_fourier_3d(fbhat,grid.Lx,grid.Ly,grid.Lz);
   
+  U = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
   for i = 1:3
       U(:,:,:,i) = real ( ifftn ( uhat(:,:,:,i)));
   end
@@ -174,6 +170,7 @@ function [G,Uw,U,Uhat] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid)
     
    % solve stokes
    %
+   fbhat = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
    for d = 1:3
        fbhat(:,:,:,d) = fftn(fb(:,:,:,d));
    end
@@ -181,6 +178,7 @@ function [G,Uw,U,Uhat] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid)
    fbhat = fbhat + fbhat_ext;
    Uhat = stokes_solve_fourier_3d(fbhat,grid.Lx,grid.Ly,grid.Lz);
    
+   U = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
    for i = 1:3
        U(:,:,:,i) = real( ifftn( Uhat(:,:,:,i)));
    end

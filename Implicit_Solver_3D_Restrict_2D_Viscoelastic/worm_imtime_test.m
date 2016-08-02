@@ -35,7 +35,7 @@ dz = Lz/Nz;
 %fluid parameters
 lam = 0.3;
 xi = 0.5;
-diffconst = 0.5;
+diffconst = 8;
 %tend = 10.0;
 %t0 = 0;                %<--- i think this is unnecessary
 %savetime = 1;
