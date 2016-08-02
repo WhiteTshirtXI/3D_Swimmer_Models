@@ -137,6 +137,8 @@ function W = JMfun(Y,JF,Sm,spfactor,dt,grid);
    
   % solve Stokes equations
   %
+  fbhat = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
+  U = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
   for d = 1:3
       fbhat(:,:,:,d) = fftn(fb(:,:,:,d));
   end
@@ -174,6 +176,8 @@ function [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid)
     
    % solve stokes
    %
+   fbhat = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
+   U = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
    for d = 1:3
        fbhat(:,:,:,d) = fftn(fb(:,:,:,d));
    end
