@@ -68,5 +68,5 @@ function J = stretch_force_jac3(X,ks,ds)
   
   % put the blocks into one big matrix and rescale
   %
-  J = [ [J11, J12, J13]; [J21, J22, J23]; [J31 J32 J33]];
+  J = [ [J11, J12, J13]; [J21, J22, J23]; [J31, J32, J33]];
   J = ks*J/ds^2;
