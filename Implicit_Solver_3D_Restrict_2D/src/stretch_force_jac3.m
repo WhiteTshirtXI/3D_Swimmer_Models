@@ -31,7 +31,7 @@ function J = stretch_force_jac3(X,ks,ds)
   J23 = J11;
   J31 = J11;
   J32 = J11;
-  J33 = J11;
+  J33 = eye(N);
   
   % loop over the springs
   %

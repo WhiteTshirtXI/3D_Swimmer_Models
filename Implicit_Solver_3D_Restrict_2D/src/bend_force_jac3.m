@@ -17,7 +17,7 @@ function J = bend_force_jac3(X,kappa,kb,ds)
   J23 = J11;
   J31 = J11;
   J32 = J11;
-  J33 = J11;
+  J33 = eye(N);
   
  
   % compute the differences of the point location
