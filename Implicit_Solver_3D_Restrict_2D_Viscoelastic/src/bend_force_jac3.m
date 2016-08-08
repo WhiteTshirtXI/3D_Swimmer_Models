@@ -17,7 +17,7 @@ function J = bend_force_jac3(X,kappa,kb,ds)
   J23 = J11;
   J31 = J11;
   J32 = J11;
-  J33 = J11;
+  J33 = eye(N);
   
  
   % compute the differences of the point location
@@ -109,4 +109,4 @@ function J = bend_force_jac3(X,kappa,kb,ds)
   
   % put the blocks into one big matrix and rescale
   %
-  J = kb*[ [J11, J12, J13]; [J21, J22, J23]; [J31 J32 J33]];
+  J = kb*[ [J11, J12, J13]; [J21, J22, J23]; [J31, J32, J33]];
