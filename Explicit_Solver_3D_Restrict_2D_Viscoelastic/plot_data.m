@@ -1,6 +1,6 @@
 clear
 % Load first data set
-load('./data/imworm_3D_VE_n128_t3.000000.mat');
+load('./data/imworm_3D_VE_n256_t3.000000.mat');
     X1 = XTworm;
     U1 = U;
     Sh1 = Shat;
@@ -64,12 +64,14 @@ for i = 1:6
 end
 
 trs = S1(:,:,:,1) + S1(:,:,:,4) + S1(:,:,:,6);
+% Calculate norm and rescale
+norm = sqrt(sum(S1(:).^2))*1e-2;
 % Note: Adjust increment value to increase plot slice density
-Sx = -1:0.2:1;
-Sy = -1:0.2:1;
-Sz = -1:0.2:1;
-cvals = linspace(-1,1,128);
-[X,Y,Z] = meshgrid(linspace(-1,1,128),linspace(-1,1,128),linspace(-1,1,128));
+Sx = [];
+Sy = [];
+Sz = [0 0];
+cvals = linspace(0,norm+1,2^11);
+[X,Y,Z] = meshgrid(linspace(-1,1,256),linspace(-1,1,256),linspace(-1,1,256));
 
 % First 3-D Figure (Worm Focus)
 figure
@@ -77,13 +79,28 @@ contourslice(X,Y,Z,trs,Sx,Sy,Sz,cvals);
 axis([-1,1,-1,1,-1,1]);
 daspect([1,1,1]);
 campos([10,-20,10]);
-title('Worm View');
+title('Stress Plot');
 box on
-% Second 3-D Figure (Full Focus)
+
+for i = 1:6
+    S2(:,:,:,i) = real(ifftn(Sh2(:,:,:,i)));
+end
+
+trs2 = S2(:,:,:,1) + S2(:,:,:,4) + S2(:,:,:,6);
+% Calculate norm and rescale
+norm2 = sqrt(sum(S2(:).^2))*1e-2;
+% Note: Adjust increment value to increase plot slice density
+Sx = [];
+Sy = [];
+Sz = [0 0];
+cvals = linspace(0,norm2+1,2^11);
+[X,Y,Z] = meshgrid(linspace(-1,1,128),linspace(-1,1,128),linspace(-1,1,128));
+
+% First 3-D Figure (Worm Focus)
 figure
-contourslice(X,Y,Z,trs,Sx,Sy,Sz);
+contourslice(X,Y,Z,trs2,Sx,Sy,Sz,cvals);
 axis([-1,1,-1,1,-1,1]);
 daspect([1,1,1]);
 campos([10,-20,10]);
-title('Full View');
+title('Stress Plot');
 box on
