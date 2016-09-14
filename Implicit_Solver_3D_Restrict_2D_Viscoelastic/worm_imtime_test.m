@@ -25,9 +25,9 @@ zmin=-Lz/2;
 
 % number of grid points and the grid spacing
 %
-Nx = 128;
-Ny = 128;
-Nz = 128;
+Nx = 16;
+Ny = 16;
+Nz = 16;
 dx = Lx/Nx;
 dy = Ly/Ny;
 dz = Lz/Nz;
@@ -62,7 +62,7 @@ kappa_fun = @(s,t)(k0*sin(2*pi/Tper*t + pi*s));
 % time stepping information
 %
 dt     = 1e-3;           % time step [s]
-Tend   = 1e-2;              % end time [s]
+Tend   = 3;              % end time [s]
 
 Nt     = round(Tend/dt);  % number of time steps to take
 saveit = round(0.01/dt);  % frequency of output swimmer positions
@@ -71,8 +71,8 @@ saveall = 10*saveit;      % frequency of output all data
 % solver tolerances
 %
 rtol     = 1e-3;    % relative tolerance for objective function
-rXtol    = 1e-12;   % relative tolerance for function values 
-gmrestol = 5e-5;    % gmres tolerance for jacobian solve
+rXtol    = 1e-6;   % relative tolerance for function values 
+gmrestol = 5e-3;    % gmres tolerance for jacobian solve
   
 
 % output locations
@@ -155,7 +155,7 @@ for tint=0:Nt
     %
     if( mod(tint,saveall)==0 && t~=0)
         foutw = sprintf('%s/%s_t%f.mat',datadir,fileprefix,t);
-	    save(foutw,'U','Uw','XTworm','Shat','newRHS');
+	    save(foutw,'U','Uw','XTworm','Shat');
     end
     
     % compute the curvature at the current time
@@ -167,7 +167,7 @@ for tint=0:Nt
         fbhat = get_veforcehat_3d(Shat,xi,grid);
     end
     % advance swimmer in time using backward euler
-    [X,Uw,U,Uhat,output] = IMstep_stokes_newton(X,dt,fbhat,ks,kb,kappa0,grid,rtol,rXtol,gmrestol);
+    [X,Uw,U,Uhat,output] = IMstep_stokes_newton(X,dt,fbhat,ks,kb,kappa0,grid,rtol,rXtol,gmrestol,lam,xi);
     % Update the stress tensor if not solving Stokes
     if(lam~=0)
         [Shat, newRHS] = update_Shat_3d(Uhat,grid,Shat,params.nu,dt,lam,newRHS);

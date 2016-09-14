@@ -1,4 +1,4 @@
-function [X,Uw,U,Uhat,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rtol,rXtol,gmrestol)
+function [X,Uw,U,Uhat,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rtol,rXtol,gmrestol,lam,xi)
    
     gmresiter   = 20;
     gmresrstart = 20;
@@ -23,7 +23,7 @@ function [X,Uw,U,Uhat,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,gri
     
     % make an initial funciton call
     %
-    [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat,grid);
+    [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat,grid,lam,xi);
 
     
     % for a Stokelets matrix for preconditioning
@@ -67,7 +67,7 @@ function [X,Uw,U,Uhat,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,gri
          
         % eval function
         %
-        [G,Uw,U,Uhat] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat,grid);
+        [G,Uw,U,Uhat] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat,grid,lam,xi);
  
         % record the size of G 
         %
@@ -153,7 +153,7 @@ function W = JMfun(Y,JF,Sm,spfactor,dt,grid);
    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    
-function [G,Uw,U,Uhat] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid)
+function [G,Uw,U,Uhat] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid,lam,xi)
 %
 % Use this function to solve G= X(n+1)-X(n)-dt*U = 0
 %
@@ -182,12 +182,10 @@ function [G,Uw,U,Uhat] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid)
    for i = 1:3
        U(:,:,:,i) = real( ifftn( Uhat(:,:,:,i)));
    end
-   %update Shat
-   %[Shat,newRHS] = update_Shat(uhat,grid,Shat,nu,dt,lam,newRHS);
-   %^ update stress in wrapper
-    
-   % interpolate back to the IB points
-   %
+   % Newtonian Swimmer
+   if(lam == 0)
+       U = U*(1/(1+xi));
+   end
    Uw = Sm'*reshape(U,grid.Nx*grid.Ny*grid.Nz,3);
    
    % eval function 
