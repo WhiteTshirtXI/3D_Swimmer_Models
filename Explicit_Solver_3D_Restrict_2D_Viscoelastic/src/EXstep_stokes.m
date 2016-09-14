@@ -1,4 +1,4 @@
-function [X,Uw,U,E,Uhat] = EXstep_stokes(Xn,dt,fbhat_ext,ks,kb,kappa,grid)
+function [X,Uw,U,E,Uhat] = EXstep_stokes(Xn,dt,fbhat_ext,ks,kb,kappa,grid,lam,xi)
      
   % form the spreading operator
   spfactor = grid.ds/(grid.dx*grid.dx*grid.dx);
@@ -32,7 +32,10 @@ function [X,Uw,U,E,Uhat] = EXstep_stokes(Xn,dt,fbhat_ext,ks,kb,kappa,grid)
   for i = 1:3
       U(:,:,:,i) = real(ifftn(Uhat(:,:,:,i)));
   end
-  
+  % Newtonian Swimmer
+  if(lam == 0)
+      U = U*(1/(1+xi));
+  end
   % interpolate velocity back to the IB points
   Uw = Sm'*reshape(U,grid.Nx*grid.Ny*grid.Nz,3);
   

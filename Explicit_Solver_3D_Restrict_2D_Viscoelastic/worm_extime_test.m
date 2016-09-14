@@ -137,7 +137,7 @@ for tint=0:Nt
     % Find Velocity
     % Solve Stokes equation with VE stress
     % advance swimmer in time using forward euler
-    [X,Uw,U,Eb,uhat] = EXstep_stokes(X,dt,fbhat,ks,kb,kappa0,grid);
+    [X,Uw,U,Eb,uhat] = EXstep_stokes(X,dt,fbhat,ks,kb,kappa0,grid,lam,xi);
     % Update the stress tensor if not solving Stokes
     if(lam~=0)
         [Shat, newRHS] = update_Shat_3d(uhat,grid,Shat,params.nu,dt,lam,newRHS);
