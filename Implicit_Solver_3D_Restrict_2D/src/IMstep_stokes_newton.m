@@ -1,4 +1,4 @@
-function [X,Uw,U,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rtol,rXtol,gmrestol)
+function [X,Uw,U,Uhat,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rtol,rXtol,gmrestol,lam,xi)
    
     gmresiter   = 20;
     gmresrstart = 20;
@@ -13,12 +13,6 @@ function [X,Uw,U,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rto
     %
     N = size(Xn,1);
 
-    % form block S'*S operator for preconditioning
-    %
-    SS = spfactor*Sm'*Sm;
-    Zm = 0*SS;
-    SSblock = [[SS, Zm];[Zm,SS]];
-
     % initialize and begin solver loop
     %
     X = Xn;
@@ -29,12 +23,12 @@ function [X,Uw,U,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rto
     
     % make an initial funciton call
     %
-    [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat,grid);
+    [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat,grid,lam,xi);
 
     
     % for a Stokelets matrix for preconditioning
     %
-    epsilon = 1.2*grid.ds;
+    epsilon = 1.5*grid.ds;
     mu = 1.0;
     M = form_reg_stokes_matrix_3D(Xn,epsilon,mu);
     M = grid.ds*M;
@@ -73,7 +67,7 @@ function [X,Uw,U,output] = IMstep_stokes_newton(Xn,dt,fbhat,ks,kb,kappa,grid,rto
          
         % eval function
         %
-        [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat,grid);
+        [G,Uw,U,Uhat] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat,grid,lam,xi);
  
         % record the size of G 
         %
@@ -138,12 +132,12 @@ function W = JMfun(Y,JF,Sm,spfactor,dt,grid);
   % solve Stokes equations
   %
   fbhat = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
-  U = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
   for d = 1:3
       fbhat(:,:,:,d) = fftn(fb(:,:,:,d));
   end
   uhat = stokes_solve_fourier_3d(fbhat,grid.Lx,grid.Ly,grid.Lz);
   
+  U = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
   for i = 1:3
       U(:,:,:,i) = real ( ifftn ( uhat(:,:,:,i)));
   end
@@ -159,7 +153,7 @@ function W = JMfun(Y,JF,Sm,spfactor,dt,grid);
    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    
-function [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid)
+function [G,Uw,U,Uhat] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid,lam,xi)
 %
 % Use this function to solve G= X(n+1)-X(n)-dt*U = 0
 %
@@ -177,23 +171,21 @@ function [G,Uw,U] = IMfun(X,Xn,dt,Sm,spfactor,ks,kb,kappa,fbhat_ext,grid)
    % solve stokes
    %
    fbhat = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
-   U = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
    for d = 1:3
        fbhat(:,:,:,d) = fftn(fb(:,:,:,d));
    end
    
    fbhat = fbhat + fbhat_ext;
-   uhat = stokes_solve_fourier_3d(fbhat,grid.Lx,grid.Ly,grid.Lz);
+   Uhat = stokes_solve_fourier_3d(fbhat,grid.Lx,grid.Ly,grid.Lz);
    
+   U = zeros(grid.Nx, grid.Ny, grid.Nz, 3);
    for i = 1:3
-       U(:,:,:,i) = real( ifftn( uhat(:,:,:,i)));
+       U(:,:,:,i) = real( ifftn( Uhat(:,:,:,i)));
    end
-   %update Shat
-   %[Shat,newRHS] = update_Shat(uhat,grid,Shat,nu,dt,lam,newRHS);
-   %^ update stress in wrapper
-    
-   % interpolate back to the IB points
-   %
+   % Newtonian Swimmer
+   if(lam == 0)
+       U = U*(1/(1+xi));
+   end
    Uw = Sm'*reshape(U,grid.Nx*grid.Ny*grid.Nz,3);
    
    % eval function 

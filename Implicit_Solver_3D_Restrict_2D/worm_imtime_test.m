@@ -178,7 +178,7 @@ for tint=0:Nt
     fbhat = zeros(Nx,Ny,Nz,3);
 
     % advance swimmer in time using backward euler
-    [X,Uw,U,output] = IMstep_stokes_newton(X,dt,fbhat,ks,kb,kappa0,grid,rtol,rXtol,gmrestol);
+    [X,Uw,U,output] = IMstep_stokes_newton(X,dt,fbhat,ks,kb,kappa0,grid,rtol,rXtol,gmrestol,lam,xi);
     
     % update time
     %
