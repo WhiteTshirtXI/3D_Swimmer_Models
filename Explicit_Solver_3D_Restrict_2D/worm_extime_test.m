@@ -135,7 +135,7 @@ for tint=0:Nt
     % set the external body forces to zero for stokes solve
     fbhat = zeros(Nx, Ny, Nz, 3);
     % advance swimmer in time using forward euler
-    [X,Uw,U,Eb,uhat] = EXstep_stokes(X,dt,fbhat,ks,kb,kappa0,grid);
+    [X,Uw,U,Eb,uhat] = EXstep_stokes(X,dt,fbhat,ks,kb,kappa0,grid,lam,xi);
     % fprintf('  Elastic energy = %g \n \n',Eb);
     % update time
     t = t+dt; 
