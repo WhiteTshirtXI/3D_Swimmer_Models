@@ -1,0 +1,11 @@
+Lx = 2.000000
+Ly = 2.000000
+Lz = 2.000000
+Nx = 16.000000
+Ny = 16
+Nz = 16.000000
+dt = 0.00100000
+N (worm points) = 10.000000
+ bending stiffness, kb = 2.0000
+ stretching stiffness, ks =  2500.0000
+ End time = 1.000000
