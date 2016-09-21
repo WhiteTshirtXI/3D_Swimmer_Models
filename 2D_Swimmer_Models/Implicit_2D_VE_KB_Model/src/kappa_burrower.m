@@ -7,7 +7,7 @@ function [A] = kappa_burrower(S,t,Tper,L)
 % Burrower
 en = size(S,1);
 for i=1:en
-    A(i) = (5.3 - 3.1*S(i))*sin(2*pi*t/Tper + pi*S(i));
+    A(i) = (5.3 - 3.1*S(i))*cos(2*pi*t/Tper + pi*(L-S(i)));
 end
 A = A';
 end

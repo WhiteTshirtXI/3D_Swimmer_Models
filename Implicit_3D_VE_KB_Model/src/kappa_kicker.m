@@ -7,7 +7,7 @@ function [A] = kappa_kicker(S,t,Tper,L)
 % Kicker
 en = size(S,1);
 for i=1:en
-    A(i) = (5.3 - 3.1*(L-S(i)))*sin(2*pi*(Tper-t)/Tper + pi*(L-S(i)));
+    A(i) = (5.3 - 3.1*(L-S(i)))*cos(2*pi*(Tper-t)/Tper + pi*S(i));
 end
 A = A';
 end
